@@ -32,9 +32,11 @@ public class TicketSecurity {
 
         User user = principal.getUser();
 
-        // Admin kan se allt
+        // Admin kan se ärenden för sina fastigheter
         if (user.getRole() == User.Role.ADMIN) {
-            return true;
+            Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+            if (ticket == null) return false;
+            return isAdminForProperty(user, ticket.getProperty().getId());
         }
 
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
@@ -59,7 +61,9 @@ public class TicketSecurity {
         User user = principal.getUser();
 
         if (user.getRole() == User.Role.ADMIN) {
-            return true;
+            Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+            if (ticket == null) return false;
+            return isAdminForProperty(user, ticket.getProperty().getId());
         }
 
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
@@ -106,7 +110,9 @@ public class TicketSecurity {
         User user = principal.getUser();
 
         if (user.getRole() == User.Role.ADMIN) {
-            return true;
+            Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+            if (ticket == null) return false;
+            return isAdminForProperty(user, ticket.getProperty().getId());
         }
 
         if (user.getRole() != User.Role.BOARD_MEMBER) {
@@ -122,6 +128,11 @@ public class TicketSecurity {
     private boolean isUserInProperty(User user, UUID propertyId) {
         return user.getUnits().stream()
                 .anyMatch(unit -> unit.getProperty().getId().equals(propertyId));
+    }
+
+    private boolean isAdminForProperty(User user, UUID propertyId) {
+        return user.getAdminProperties().stream()
+                .anyMatch(property -> property.getId().equals(propertyId));
     }
 
     private UserPrincipal getCurrentUser() {

@@ -14,6 +14,11 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
   artemis:
     mode: native
     broker-url: tcp://localhost:61616
@@ -27,6 +32,10 @@ spring:
 
 server:
   port: 8080
+
+# Firebase configuration (only project-id needed for token validation)
+firebase:
+  project-id: timetree-43112
 
 # JWT configuration
 jwt:

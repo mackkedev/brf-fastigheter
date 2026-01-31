@@ -160,9 +160,22 @@ public class TicketService {
         User assignee = userRepository.findById(assigneeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Användare hittades inte"));
 
-        // Kontrollera att assignee är tekniker eller styrelsemedlem
-        if (assignee.getRole() != User.Role.TECHNICIAN && assignee.getRole() != User.Role.BOARD_MEMBER) {
-            throw new UnauthorizedException("Endast tekniker eller styrelsemedlemmar kan tilldelas ärenden");
+        User assigner = principal.getUser();
+        UUID propertyId = ticket.getProperty().getId();
+
+        if (assigner.getRole() == User.Role.BOARD_MEMBER) {
+            if (assignee.getRole() != User.Role.ADMIN || !isAdminForProperty(assignee, propertyId)) {
+                throw new UnauthorizedException("Endast fastighetens förvaltare kan tilldelas ärenden");
+            }
+        } else if (assigner.getRole() == User.Role.ADMIN) {
+            if (!isAdminForProperty(assigner, propertyId)) {
+                throw new UnauthorizedException("Du har inte behörighet för denna fastighet");
+            }
+            if (assignee.getRole() != User.Role.TECHNICIAN) {
+                throw new UnauthorizedException("Endast tekniker kan tilldelas ärenden");
+            }
+        } else {
+            throw new UnauthorizedException("Du har inte behörighet att tilldela ärenden");
         }
 
         ticket.setAssignee(assignee);
@@ -182,6 +195,11 @@ public class TicketService {
 
         log.info("Ticket {} assigned to {} by {}", ticketId, assignee.getEmail(), principal.getEmail());
         return mapToResponse(ticket, principal);
+    }
+
+    private boolean isAdminForProperty(User user, UUID propertyId) {
+        return user.getAdminProperties().stream()
+                .anyMatch(property -> property.getId().equals(propertyId));
     }
 
     public TicketResponse addComment(Long ticketId, AddCommentRequest request, UserPrincipal principal) {

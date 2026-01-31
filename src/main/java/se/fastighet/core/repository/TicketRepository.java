@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import se.fastighet.core.entity.Property;
 import se.fastighet.core.entity.Ticket;
 
 import java.time.LocalDateTime;
@@ -54,4 +55,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
     Page<Ticket> searchInProperty(@Param("propertyId") UUID propertyId,
                                    @Param("searchTerm") String searchTerm,
                                    Pageable pageable);
+
+    @Query("SELECT DISTINCT t.property FROM Ticket t WHERE t.assignee.id = :assigneeId")
+    List<Property> findDistinctPropertiesByAssigneeId(@Param("assigneeId") UUID assigneeId);
 }

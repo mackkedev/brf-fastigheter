@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import se.fastighet.core.dto.request.LoginRequest;
+import se.fastighet.core.dto.request.TokenExchangeRequest;
 import se.fastighet.core.dto.response.AuthResponse;
 import se.fastighet.core.exception.UnauthorizedException;
 import se.fastighet.core.security.UserPrincipal;
@@ -17,13 +18,16 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping({"/api/auth", "/auth"})
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Login with email and password
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
@@ -39,6 +43,28 @@ public class AuthController {
         }
     }
 
+    /**
+     * Exchange Firebase token for internal JWT token
+     */
+    @PostMapping("/token/exchange")
+    public ResponseEntity<?> exchangeToken(@Valid @RequestBody TokenExchangeRequest request) {
+        try {
+            AuthResponse response = authService.exchangeToken(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            log.warn("Firebase token validation failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "status", 401,
+                            "message", "Ogiltig eller utgången Firebase-token",
+                            "timestamp", LocalDateTime.now()
+                    ));
+        }
+    }
+
+    /**
+     * Get current authenticated user info
+     */
     @GetMapping("/me")
     public ResponseEntity<AuthResponse.UserInfo> getCurrentUser(@AuthenticationPrincipal UserPrincipal principal) {
         if (principal == null) {

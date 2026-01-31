@@ -33,9 +33,33 @@ public class Property {
     @Column(name = "postal_code")
     private String postalCode;
 
+    @Column(name = "property_designation")
+    private String propertyDesignation;
+
+    @Column(name = "organization_number")
+    private String organizationNumber;
+
+    @Column(name = "economic_plan_registered")
+    private Boolean economicPlanRegistered;
+
+    @Column(name = "contact_email")
+    private String contactEmail;
+
+    @Column(name = "contact_phone")
+    private String contactPhone;
+
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Unit> units = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "property_admins",
+            joinColumns = @JoinColumn(name = "property_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Builder.Default
+    private java.util.Set<User> admins = new java.util.HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -53,5 +77,15 @@ public class Property {
     public void removeUnit(Unit unit) {
         units.remove(unit);
         unit.setProperty(null);
+    }
+
+    public void addAdmin(User user) {
+        admins.add(user);
+        user.getAdminProperties().add(this);
+    }
+
+    public void removeAdmin(User user) {
+        admins.remove(user);
+        user.getAdminProperties().remove(this);
     }
 }

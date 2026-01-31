@@ -35,7 +35,7 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @ManyToMany
@@ -46,6 +46,10 @@ public class User {
     )
     @Builder.Default
     private Set<Unit> units = new HashSet<>();
+
+    @ManyToMany(mappedBy = "admins")
+    @Builder.Default
+    private Set<Property> adminProperties = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

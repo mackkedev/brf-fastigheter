@@ -31,7 +31,21 @@ public class UserResponse {
     public static class UnitInfo {
         private UUID id;
         private String unitNumber;
+        private String taxUnitNumber;
+        private Integer rooms;
+        private Double squareMeters;
+        private Integer floor;
+        private String address;
+        private java.time.LocalDate acquisitionDate;
+        private String ownershipShare;
+        private java.math.BigDecimal monthlyFee;
+        private java.math.BigDecimal internetFee;
         private String propertyName;
+        private String propertyDesignation;
+        private String organizationNumber;
+        private Boolean economicPlanRegistered;
+        private String contactEmail;
+        private String contactPhone;
         private UUID propertyId;
     }
 }

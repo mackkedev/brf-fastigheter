@@ -12,5 +12,7 @@ public interface UnitRepository extends JpaRepository<Unit, UUID> {
 
     List<Unit> findByPropertyId(UUID propertyId);
 
+    java.util.Optional<Unit> findByPropertyIdAndUnitNumber(UUID propertyId, String unitNumber);
+
     boolean existsByPropertyIdAndUnitNumber(UUID propertyId, String unitNumber);
 }

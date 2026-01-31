@@ -13,4 +13,6 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
     Optional<Property> findByName(String name);
 
     boolean existsByName(String name);
+
+    java.util.List<Property> findByAdminsId(java.util.UUID adminId);
 }
